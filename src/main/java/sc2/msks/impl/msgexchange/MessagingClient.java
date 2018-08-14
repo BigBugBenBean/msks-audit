@@ -2,22 +2,30 @@ package sc2.msks.impl.msgexchange;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import io.socket.emitter.Emitter;
-import io.socket.engineio.client.transports.WebSocket;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+//import org.apache.commons.logging.Log;
+//import org.apache.commons.logging.LogFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.pccw.sc2.audit.service.AuditLogService;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * hello world
+ */
 @Service
 public class MessagingClient {
 
-    private Log log = LogFactory.getLog(MessagingClient.class);
+//    private Log log = LogFactory.getLog(MessagingClient.class);
+	
+	private static Logger log = LoggerFactory.getLogger(MessagingClient.class);
 
     @Autowired
     private MessageFactory msgfact;
@@ -27,6 +35,9 @@ public class MessagingClient {
 
     @Value("${ws.namespace}")
     private String wsns;
+    
+    @Autowired
+    private AuditLogService auditLogService;
 
     public void startMessaging() throws URISyntaxException {
         IO.Options options = new IO.Options();
@@ -34,7 +45,6 @@ public class MessagingClient {
 
         final Socket socket= IO.socket(new URI(wsuri), options);
         try{
-
             socket.connect().on(Socket.EVENT_CONNECT, objects -> {
                log.debug("socket connected");
                JSONObject registration = msgfact.createRegistrationMessage();
@@ -47,10 +57,13 @@ public class MessagingClient {
                    JSONObject regmsg = (JSONObject) objA[0];
 
                    JSONObject header = regmsg.getJSONObject("header");
+                   JSONObject resqPayload = regmsg.getJSONObject("payload");
                    String function = header.getString("function");
                    log.info("Processing function: "+function);
 
-                   JSONObject response = msgfact.createResponse(header);
+                   processFunction(function,resqPayload);
+                   JSONObject response = msgfact.createOKResponse(header);
+
                    socket.emit(wsns+'/'+header.getString("channelid"), response.toString());
                });
             });
@@ -68,4 +81,20 @@ public class MessagingClient {
         }
     }
 
+    private void processFunction(String function,JSONObject resqPayload) {
+
+        if("excptlg".equals(function)) {
+//            String icno = resqPayload.getString("ic_no");
+//            String locationId = resqPayload.getString("locationID");
+//            String kioskId = resqPayload.getString("kioskID");
+//
+//            String message = resqPayload.getString("message");
+
+            this.auditLogService.processExceptionLog(resqPayload);
+        }else if("translg".equals(function)) {
+            this.auditLogService.processOperationLog(resqPayload);
+        }else if("tracklg".equals(function)) {
+            this.auditLogService.processTrackLog(resqPayload);
+        }
+    }
 }
