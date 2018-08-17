@@ -3,6 +3,9 @@ package sc2.msks.impl.msgexchange;
 import cn.hutool.core.io.watch.WatchMonitor;
 import cn.hutool.core.io.watch.WatchUtil;
 import cn.hutool.core.io.watch.Watcher;
+
+import com.pccw.sc2.audit.log.ExceptionLogVO;
+import com.pccw.sc2.audit.log.TransationLogVO;
 import com.pccw.sc2.audit.thread.AbstractLineHandler;
 import com.pccw.sc2.audit.thread.ExceptionLineHandler;
 import com.pccw.sc2.audit.thread.LogWatcher;
@@ -60,13 +63,13 @@ public class BeanConfig {
 
     @Bean
 //    @Scope(value = BeanDefinition.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.NO)
-    public AbstractLineHandler exceptionLineHandler() {
+    public AbstractLineHandler<ExceptionLogVO> exceptionLineHandler() {
         return new ExceptionLineHandler();
     }
 
     @Bean
 //    @Scope(value = BeanDefinition.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.NO)
-    public AbstractLineHandler transcationLineHandler() {
+    public AbstractLineHandler<TransationLogVO> transcationLineHandler() {
         return new TransactionLineHandler();
     }
 }

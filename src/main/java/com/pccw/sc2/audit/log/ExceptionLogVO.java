@@ -1,7 +1,5 @@
 package com.pccw.sc2.audit.log;
 
-import com.alibaba.fastjson.JSON;
-
 public class ExceptionLogVO {
 
     private String actiontype;
@@ -94,14 +92,14 @@ public class ExceptionLogVO {
         this.remk = remk;
     }
 
-    @Override
-    public String toString() {
-        return JSON.toJSONString(this);
-//        ToStringBuilder tsb = new ToStringBuilder(null);
-//        return tsb.append("excptcd",this.excptcd).append("kskid",kskid)
-//                  .append("actiontype",actiontype).append("mcdno",mcdno)
-//                  .append("dtaction",dtaction).append("lstupid",lstupid)
-//                  .append("dtlstupd",dtlstupd).toString();
-//                  .append("remk",remk).append("dtual",dtual)
-    }
+//     @Override
+//     public String toString() {
+//         return JSON.toJSONString(this);
+// //        ToStringBuilder tsb = new ToStringBuilder(null);
+// //        return tsb.append("excptcd",this.excptcd).append("kskid",kskid)
+// //                  .append("actiontype",actiontype).append("mcdno",mcdno)
+// //                  .append("dtaction",dtaction).append("lstupid",lstupid)
+// //                  .append("dtlstupd",dtlstupd).toString();
+// //                  .append("remk",remk).append("dtual",dtual)
+//     }
 }

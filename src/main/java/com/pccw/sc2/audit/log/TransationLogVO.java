@@ -1,7 +1,5 @@
 package com.pccw.sc2.audit.log;
 
-import com.alibaba.fastjson.JSON;
-
 public class TransationLogVO {
 //SELECT KSKID, DTACTION, ACTIONTYPE, "RESULT", MCDNO, DTUAL, DTLSTUPD, LSTUPID, REMK
 //FROM CSLCORE.WKSKTXLG;
@@ -89,14 +87,14 @@ public class TransationLogVO {
     }
 
 
-    @Override
-    public String toString() {
-        return JSON.toJSONString(this);
-//        ToStringBuilder tsb = new ToStringBuilder(null);
-//        return tsb.append("result",this.result).append("kskid",kskid)
-//                .append("actiontype",actiontype).append("mcdno",mcdno)
-//                .append("dtaction",dtaction).append("lstupid",lstupid)
-//                .append("remk",remk).append("dtual",dtual)
-//                .append("dtlstupd",dtlstupd).toString();
-    }
+//     @Override
+//     public String toString() {
+//         return JSON.toJSONString(this);
+// //        ToStringBuilder tsb = new ToStringBuilder(null);
+// //        return tsb.append("result",this.result).append("kskid",kskid)
+// //                .append("actiontype",actiontype).append("mcdno",mcdno)
+// //                .append("dtaction",dtaction).append("lstupid",lstupid)
+// //                .append("remk",remk).append("dtual",dtual)
+// //                .append("dtlstupd",dtlstupd).toString();
+//     }
 }

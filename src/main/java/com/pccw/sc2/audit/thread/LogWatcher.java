@@ -1,28 +1,36 @@
 package com.pccw.sc2.audit.thread;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.watch.Watcher;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.util.regex.Pattern;
 
+import com.pccw.sc2.audit.log.ExceptionLogVO;
+import com.pccw.sc2.audit.log.TransationLogVO;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.watch.Watcher;
+
 public class LogWatcher implements Watcher {
+
+    private Logger log = LoggerFactory.getLogger(LogWatcher.class);
 
     @Value("${log.path}")
     private String logPath;
 
     @Autowired
     @Qualifier("exceptionLineHandler")
-    private AbstractLineHandler exceptionLineHandler;
+    private AbstractLineHandler<ExceptionLogVO> exceptionLineHandler;
 
     @Autowired
     @Qualifier("transcationLineHandler")
-    private AbstractLineHandler transactionLineHandler;
+    private AbstractLineHandler<TransationLogVO> transactionLineHandler;
 
     private Pattern excptPattern = Pattern.compile("excpt-\\d{8}-\\d+.log");
     private Pattern transPattern = Pattern.compile("trans-\\d{8}-\\d+.log");
@@ -37,13 +45,17 @@ public class LogWatcher implements Watcher {
     @Override
     public void onCreate(WatchEvent<?> event, Path currentPath) {
         String fileName = event.context().toString();
+        log.info("on_create........."+fileName);
         File file = getSendFile(currentPath,fileName);
         if (isTranscation(fileName)) {
+            this.transactionLineHandler.setFileName(fileName);
             FileUtil.readUtf8Lines(file, this.transactionLineHandler);
             this.transactionLineHandler.after();
         }else if (isException(fileName)) {
+            this.exceptionLineHandler.setFileName(fileName);
             FileUtil.readUtf8Lines(file, this.exceptionLineHandler);
             this.exceptionLineHandler.after();
+            log.info("send over...");
         }
     }
 

@@ -28,4 +28,6 @@ public interface AbstractLineHandler<T> extends LineHandler {
         List<T> voList = set.stream().map(x -> getLogVO(x, new TypeReference<T>(){}  )).collect(Collectors.toList());
         return voList;
     }
+
+    public void setFileName(String fileName);
 }

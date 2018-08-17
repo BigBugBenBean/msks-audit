@@ -1,13 +1,12 @@
 package com.pccw.sc2.audit.service;
 
+import java.util.List;
+import java.util.concurrent.Future;
+
 import com.pccw.sc2.audit.log.ExceptionLogVO;
 import com.pccw.sc2.audit.log.TransationLogVO;
-import org.json.JSONObject;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
 
-import java.util.List;
-import java.util.Set;
+import org.json.JSONObject;
 
 public interface AuditLogService {
 	
@@ -17,8 +16,8 @@ public interface AuditLogService {
 
 	void processTrackLog(JSONObject payload);
 
-	public void sendTranscation(List<TransationLogVO> set);
+	public Future<Integer> sendTranscation(List<TransationLogVO> set);
 
-	public void sendException(List<ExceptionLogVO> set);
+	public Future<Integer> sendException(List<ExceptionLogVO> set);
 
 }

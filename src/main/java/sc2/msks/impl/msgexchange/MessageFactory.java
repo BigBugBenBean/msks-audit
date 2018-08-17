@@ -1,10 +1,10 @@
 package sc2.msks.impl.msgexchange;
 
+import java.util.HashMap;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
 
 @Service
 public class MessageFactory {
@@ -37,7 +37,8 @@ public class MessageFactory {
     }
 
     public JSONObject createOKResponse(JSONObject header) {
-        return this.createResponse(header, new JSONObject().put("result",true).put("error_info", new HashMap() {{
+        return this.createResponse(header, new JSONObject().put("result",true).put("error_info", new HashMap<String,Integer>() {private static final long serialVersionUID = 1L;
+		{
             this.put("error_code",0);
         }}));
     }
