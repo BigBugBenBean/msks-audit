@@ -39,6 +39,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     @Override
     @Async
     public Future<Integer> sendTranscation(List<TransationLogVO> requestEntity) {
+        this.log.info("start send transaction .......");
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(this.buildTranscationUrl(), this.buildJsonObjectTrans(requestEntity), String.class);
         int statusCodeValue = responseEntity.getStatusCodeValue();
         return new AsyncResult<Integer>(statusCodeValue);
