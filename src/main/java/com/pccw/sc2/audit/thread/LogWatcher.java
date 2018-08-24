@@ -42,11 +42,12 @@ public class LogWatcher implements Watcher {
         return transPattern.matcher(fileName).matches();
     }
 
-    @Override
-    public void onCreate(WatchEvent<?> event, Path currentPath) {
-        String fileName = event.context().toString();
-        log.info("on_create........."+fileName);
-        File file = getSendFile(currentPath,fileName);
+    private boolean isNewDir(File file) {
+        return file.isDirectory();
+    }
+
+    private void processExcptAndTransLogFile(File file,String fileName) {
+        log.info("start process {}...",fileName);
         if (isTranscation(fileName)) {
             this.transactionLineHandler.setFileName(fileName);
             FileUtil.readUtf8Lines(file, this.transactionLineHandler);
@@ -55,7 +56,23 @@ public class LogWatcher implements Watcher {
             this.exceptionLineHandler.setFileName(fileName);
             FileUtil.readUtf8Lines(file, this.exceptionLineHandler);
             this.exceptionLineHandler.after();
-            log.info("send over...");
+        }
+    }
+
+    @Override
+    public void onCreate(WatchEvent<?> event, Path currentPath) {
+        String fileName = event.context().toString();
+        File file = getSendFile(currentPath,fileName);
+        if (isNewDir(file)) {
+            log.info("Detected filename:{} is folder,continue processing children...",fileName);
+            log.info("dir {file} path: {}",file,file.getAbsolutePath());
+            File[] files = file.listFiles();
+            log.info("list file zize:{}",files.length);
+            for (File var : files) {
+                this.processExcptAndTransLogFile(var, var.getName());
+            }
+        }else {
+            this.processExcptAndTransLogFile(file, fileName);
         }
     }
 

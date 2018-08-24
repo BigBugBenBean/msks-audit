@@ -4,12 +4,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.pccw.sc2.audit.log.TransationLogVO;
 import com.pccw.sc2.audit.service.AuditLogService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -66,7 +65,7 @@ public class TransactionLineHandler implements AbstractLineHandler<TransationLog
 						Integer body = future.get();
 					} catch (Exception e) {
                         Throwable ee =  e.getCause() == null ? e : e.getCause();
-                        this.restLog.error("filename:${} ,error:${}",this.fileName,ee.getMessage());
+                        this.restLog.error("filename:{} ,error:{}",this.fileName,ee.getMessage());
                         this.log.error("call restful ws error.",e);
                     }
                     break;

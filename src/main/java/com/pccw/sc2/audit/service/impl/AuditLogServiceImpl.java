@@ -53,6 +53,9 @@ public class AuditLogServiceImpl implements AuditLogService {
         Map<String,Object> entity = this.buildJsonObjectExcpt(requestEntity);
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, entity, String.class);
         int statusCodeValue = responseEntity.getStatusCodeValue();
+        if (statusCodeValue == 200) {
+            this.log.info("sended size= {} ",requestEntity.size());
+        }
         return new AsyncResult<Integer>(statusCodeValue);
         // ThreadUtil.sleep(5000);
 

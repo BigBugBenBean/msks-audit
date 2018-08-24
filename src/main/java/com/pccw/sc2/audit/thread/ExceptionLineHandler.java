@@ -64,7 +64,7 @@ public class ExceptionLineHandler implements AbstractLineHandler<ExceptionLogVO>
 						Integer body = future.get();
 					} catch (Exception e) {
                         Throwable ee =  e.getCause() == null ? e : e.getCause();
-                        this.restLog.error("filename:${} ,error:${}",this.fileName,ee.getMessage());
+                        this.restLog.error("filename:{} ,error:{}",this.fileName,ee.getMessage());
                         this.log.error("call restful ws error.",e);
                         // e.getCause().printStackTrace();
 						// e.printStackTrace();
