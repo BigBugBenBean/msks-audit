@@ -49,8 +49,8 @@ public class AuditLogServiceImpl implements AuditLogService {
 		this.log.info("start send transaction .......");
 		ResponseEntity<String> responseEntity = restTemplate.postForEntity(this.buildTranscationUrl(),
 				this.buildJsonObjectTrans(requestEntity), String.class);
-		int statusCodeValue = responseEntity.getStatusCodeValue();
-		return new AsyncResult<Integer>(statusCodeValue);
+//		int statusCodeValue = responseEntity.getStatusCodeValue();
+		return new AsyncResult<Integer>(requestEntity.size());
 	}
 
 	@Override
@@ -60,11 +60,11 @@ public class AuditLogServiceImpl implements AuditLogService {
 		String url = this.buildExceptionUrl();
 		Map<String, Object> entity = this.buildJsonObjectExcpt(requestEntity);
 		ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, entity, String.class);
-		int statusCodeValue = responseEntity.getStatusCodeValue();
-		if (statusCodeValue == 200) {
-			this.log.info("sended size= {} ", requestEntity.size());
-		}
-		return new AsyncResult<Integer>(statusCodeValue);
+//		int statusCodeValue = responseEntity.getStatusCodeValue();
+//		if (statusCodeValue == 200) {
+//			this.log.info("sended size= {} ", requestEntity.size());
+//		}
+		return new AsyncResult<Integer>(requestEntity.size());
 		// ThreadUtil.sleep(5000);
 
 		// Future<String> future;
@@ -129,8 +129,8 @@ public class AuditLogServiceImpl implements AuditLogService {
 		JSONObject resp = payload.getJSONObject("resp");
 		resp = fptmplinBase64(omitPhotoBmp(fpdata(resp)));
 		resq = fptmplinBase64(resq);
-		trackLog.info(String.format("request header:%s, payload:%s", head, resq));
-		trackLog.info(String.format("=====>response:%s", resp));
+		trackLog.info(String.format("<=head:%s, payload:%s", head, resq));
+		trackLog.info(String.format("=>resp:%s", resp));
 	}
 
 	private String buildTranscationUrl() {

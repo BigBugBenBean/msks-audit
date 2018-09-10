@@ -4,9 +4,9 @@
 
     <Properties>
         <Property name="APP_NAME">msks-audit</Property>
-        <!-- <Property name="ROOT_PATH">/home/bigbean</Property> -->
-        <Property name="ROOT_PATH">D:/kiosk</Property>
-        <Property name="LOG_FILE_PATH">${ROOT_PATH}/logs/${APP_NAME}</Property>
+        <Property name="ROOT_PATH">/home/bigbean/msks_logs</Property>
+         <!-- <Property name="ROOT_PATH">D:/kiosk_logs</Property> -->
+        <Property name="LOG_FILE_PATH">${ROOT_PATH}/${APP_NAME}</Property>
         <Property name="PATTERN_FORMAT">%d{yyyy-MM-dd HH:mm:ss.SSS} %c %msg%n</Property>
     </Properties>
 
@@ -23,11 +23,11 @@
                 <pattern>${PATTERN_FORMAT}</pattern>
             </PatternLayout>
             <Policies>
-                <SizeBasedTriggeringPolicy size="10MB"/>
+                <SizeBasedTriggeringPolicy size="5MB"/>
                 <TimeBasedTriggeringPolicy />
             </Policies>
             <DefaultRolloverStrategy max="30">
-                <Delete basePath="${ROOT_PATH}/logs/${APP_NAME}" maxDepth="2">
+                <Delete basePath="${ROOT_PATH}/${APP_NAME}" maxDepth="2">
                     <IfFileName glob="*/fail-*.log" />
                     <IfLastModified age="20d" />
                 </Delete>
@@ -39,11 +39,12 @@
                 <pattern>${PATTERN_FORMAT}</pattern>
             </PatternLayout>
             <Policies>
+            	<CronTriggeringPolicy schedule="0 0/1 * * * ?"/>
                 <SizeBasedTriggeringPolicy size="1MB"/>
                 <TimeBasedTriggeringPolicy />
             </Policies>
             <DefaultRolloverStrategy max="30">
-                <Delete basePath="${ROOT_PATH}/logs/${APP_NAME}" maxDepth="2">
+                <Delete basePath="${ROOT_PATH}/${APP_NAME}" maxDepth="2">
                     <IfFileName glob="*/excpt-*.log" />
                     <IfLastModified age="30d" />
                 </Delete>
@@ -55,11 +56,12 @@
                 <pattern>${PATTERN_FORMAT}</pattern>
             </PatternLayout>
             <Policies>
-                <SizeBasedTriggeringPolicy size="5MB"/>
+            	<CronTriggeringPolicy schedule="0 0 * * * ?"/>
+                <SizeBasedTriggeringPolicy size="1MB"/>
                 <TimeBasedTriggeringPolicy />
             </Policies>
             <DefaultRolloverStrategy max="30">
-                <Delete basePath="${ROOT_PATH}/logs/${APP_NAME}" maxDepth="2">
+                <Delete basePath="${ROOT_PATH}/${APP_NAME}" maxDepth="2">
                     <IfFileName glob="*/trans-*.log" />
                     <IfLastModified age="30d" />
                 </Delete>
@@ -80,7 +82,7 @@
                 <TimeBasedTriggeringPolicy />
             </Policies>
             <DefaultRolloverStrategy max="30">
-                <Delete basePath="${ROOT_PATH}/logs/${APP_NAME}" maxDepth="2">
+                <Delete basePath="${ROOT_PATH}/${APP_NAME}" maxDepth="2">
                     <IfFileName glob="*/track-*.log" />
                     <IfLastModified age="30d" />
                 </Delete>
