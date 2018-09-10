@@ -60,9 +60,10 @@ public class TransactionLineHandler implements AbstractLineHandler<TransationLog
                     break;
                 }
                 if (future.isDone()) {
-                    log.info("send exception is done.");
+                    log.info("send transaction is done.");
                     try {
-						Integer body = future.get();
+                        Integer body = future.get();
+                        log.info("send transaction success."+ body.toString());
 					} catch (Exception e) {
                         Throwable ee =  e.getCause() == null ? e : e.getCause();
                         this.restLog.error("filename:{} ,error:{}",this.fileName,ee.getMessage());

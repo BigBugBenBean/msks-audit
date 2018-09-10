@@ -48,12 +48,12 @@ public class ExceptionLineHandler implements AbstractLineHandler<ExceptionLogVO>
             set.clear();
             int i = 0;
             while (true) {
-                if (i >= 60) {
-                    this.log.warn("send exception exceed the limit 60 seconds.");
-                    break;
-                } else {
-                    i++;
-                }
+               if (i >= 60) {
+                   this.log.warn("send exception exceed the limit 60 seconds.");
+                   break;
+               } else {
+                   i++;
+               }
                 if (future.isCancelled()) {
                     this.log.warn("send exception has be canceled.");
                     break;
@@ -62,10 +62,11 @@ public class ExceptionLineHandler implements AbstractLineHandler<ExceptionLogVO>
                     log.info("send exception is done.");
                     try {
 						Integer body = future.get();
+						log.info("send exception success."+ body.toString());
 					} catch (Exception e) {
                         Throwable ee =  e.getCause() == null ? e : e.getCause();
                         this.restLog.error("filename:{} ,error:{}",this.fileName,ee.getMessage());
-                        this.log.error("call restful ws error.",e);
+                        this.log.error("call restful ws error.",e.getCause());
                         // e.getCause().printStackTrace();
 						// e.printStackTrace();
                     }

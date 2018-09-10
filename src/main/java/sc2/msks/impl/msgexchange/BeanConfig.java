@@ -1,15 +1,17 @@
 package sc2.msks.impl.msgexchange;
 
-import cn.hutool.core.io.watch.WatchMonitor;
-import cn.hutool.core.io.watch.WatchUtil;
-import cn.hutool.core.io.watch.Watcher;
-
 import com.pccw.sc2.audit.log.ExceptionLogVO;
 import com.pccw.sc2.audit.log.TransationLogVO;
 import com.pccw.sc2.audit.thread.AbstractLineHandler;
 import com.pccw.sc2.audit.thread.ExceptionLineHandler;
-import com.pccw.sc2.audit.thread.LogWatcher;
+import com.pccw.sc2.audit.thread.FileListener;
 import com.pccw.sc2.audit.thread.TransactionLineHandler;
+
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.HiddenFileFilter;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +19,9 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.io.File;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableAsync
@@ -49,16 +53,36 @@ public class BeanConfig {
     }
 
     @Bean
-    public WatchMonitor createLogWatchMonitor() {
-        WatchMonitor all = WatchUtil.createAll(logPath, 2, this.logWatcher());
-        all.start();
-        return all;
+    public FileAlterationMonitor createLogWatchMonitor() throws Exception {
+//        WatchMonitor all = WatchUtil.createAll(logPath, 3 , this.logWatcher());
+//        all.start();
+        
+        // 轮询间隔 5 秒
+        long interval = TimeUnit.SECONDS.toMillis(1);
+        // 创建过滤器
+		// IOFileFilter directories = FileFilterUtils.and(FileFilterUtils.directoryFileFilter(), HiddenFileFilter.VISIBLE);
+        // IOFileFilter files       = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.suffixFileFilter(".log"));
+        // IOFileFilter filter      = FileFilterUtils.or(directories, files);
+        // 使用过滤器
+        FileAlterationObserver observer = new FileAlterationObserver(new File(logPath), null);
+        //不使用过滤器
+        //FileAlterationObserver observer = new FileAlterationObserver(new File(rootDir));
+        observer.addListener(fileListener());
+        //创建文件变化监听器
+        FileAlterationMonitor monitor = new FileAlterationMonitor(interval, observer);
+        // 开始监控
+        // try {
+			monitor.start();
+		// } catch (Exception e) {
+		// 	e.printStackTrace();
+		// }
+        return monitor;
     }
     
     @Bean
-    public Watcher logWatcher() {
-        LogWatcher logWatcher = new LogWatcher();
-        return logWatcher;
+    public FileListener fileListener() {
+    	FileListener f = new FileListener();
+        return f;
     }
 
     @Bean

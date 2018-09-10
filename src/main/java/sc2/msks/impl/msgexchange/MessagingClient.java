@@ -35,6 +35,9 @@ public class MessagingClient {
 
     @Value("${ws.namespace}")
     private String wsns;
+
+    @Value("${ws.channelid}")
+    private String channelid;
     
     @Autowired
     private AuditLogService auditLogService;
@@ -67,6 +70,8 @@ public class MessagingClient {
                    socket.emit(wsns+'/'+header.getString("channelid"), response.toString());
                });
             });
+
+            socket.on(Socket.EVENT_DISCONNECT, objects -> socket.off(wsns+"/"+this.channelid));
 
             socket.on(Socket.EVENT_CONNECT_ERROR, objects -> log.debug("Socket connection error"));
 
