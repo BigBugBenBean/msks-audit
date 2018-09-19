@@ -127,10 +127,10 @@ public class AuditLogServiceImpl implements AuditLogService {
 		JSONObject head = payload.getJSONObject("head");
 		JSONObject resq = payload.getJSONObject("resq");
 		JSONObject resp = payload.getJSONObject("resp");
-		resp = fptmplinBase64(omitPhotoBmp(fpdata(resp)));
-		resq = fptmplinBase64(resq);
-		trackLog.info(String.format("<=head:%s, payload:%s", head, resq));
-		trackLog.info(String.format("=>resp:%s", resp));
+		resp = respFingerprint1(respAnsifptmp12inBase64(respPhoto(respPhotojp2inBase64(respMorphofptmp12inBase64(respPhotojpginBase64(respFingerprint0(fptmplinBase64(respPhotoBmp(fpdata(resp))))))))));
+		resq = fptmplinBase64(reqFpimginBase64(resq));
+		trackLog.info(String.format("=>reqt:%s, payload:%s", head, resq));
+		trackLog.info(String.format("<=resp:%s", resp));
 	}
 
 	private String buildTranscationUrl() {
@@ -164,7 +164,7 @@ public class AuditLogServiceImpl implements AuditLogService {
 		};
 	}
 
-	private JSONObject omitPhotoBmp(JSONObject payload) {
+	private JSONObject respPhotoBmp(JSONObject payload) {
 		String key = "photo_bmp";
 		boolean has = payload.has(key);
 		if (has) {
@@ -187,6 +187,78 @@ public class AuditLogServiceImpl implements AuditLogService {
 		boolean has = payload.has(key);
 		if (has) {
 			payload.put(key, "Omit...fp_tmpl_in_base64...");
+		}
+		return payload;
+	}
+	
+	private JSONObject reqFpimginBase64(JSONObject payload) {
+		String key = "fp_img_in_base64";
+		boolean has = payload.has(key);
+		if (has) {
+			payload.put(key, "Omit...fp_img_in_base64...");
+		}
+		return payload;
+	}
+	
+	private JSONObject respPhotojpginBase64(JSONObject payload) {
+		String key = "photo_jpg_in_base64";
+		boolean has = payload.has(key);
+		if (has) {
+			payload.put(key, "Omit...photo_jpg_in_base64...");
+		}
+		return payload;
+	}
+	
+	private JSONObject respMorphofptmp12inBase64(JSONObject payload) {
+		String key = "morpho_fp_tmp12_in_base64";
+		boolean has = payload.has(key);
+		if (has) {
+			payload.put(key, "Omit...morpho_fp_tmp12_in_base64...");
+		}
+		return payload;
+	}
+	
+	private JSONObject respPhotojp2inBase64(JSONObject payload) {
+		String key = "photo_jp2_in_base64";
+		boolean has = payload.has(key);
+		if (has) {
+			payload.put(key, "Omit...photo_jp2_in_base64...");
+		}
+		return payload;
+	}
+	
+	private JSONObject respFingerprint0(JSONObject payload) {
+		String key = "fingerprint0";
+		boolean has = payload.has(key);
+		if (has) {
+			payload.put(key, "Omit...fingerprint0...");
+		}
+		return payload;
+	}
+
+	private JSONObject respFingerprint1(JSONObject payload) {
+		String key = "fingerprint1";
+		boolean has = payload.has(key);
+		if (has) {
+			payload.put(key, "Omit...fingerprint1...");
+		}
+		return payload;
+	}
+	
+	private JSONObject respPhoto(JSONObject payload) {
+		String key = "photo";
+		boolean has = payload.has(key);
+		if (has) {
+			payload.put(key, "Omit...photo...");
+		}
+		return payload;
+	}
+	
+	private JSONObject respAnsifptmp12inBase64(JSONObject payload) {
+		String key = "ansi_fp_tmp12_in_base64";
+		boolean has = payload.has(key);
+		if (has) {
+			payload.put(key, "Omit...ansi_fp_tmp12_in_base64...");
 		}
 		return payload;
 	}
