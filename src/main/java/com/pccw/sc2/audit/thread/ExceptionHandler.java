@@ -3,17 +3,12 @@ package com.pccw.sc2.audit.thread;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.pccw.sc2.audit.log.ExceptionLogVO;
 import com.pccw.sc2.audit.service.AuditLogService;
-
-import cn.hutool.core.thread.ThreadUtil;
 
 public class ExceptionHandler implements AbstractHandler<ExceptionLogVO> {
 
@@ -42,7 +37,7 @@ public class ExceptionHandler implements AbstractHandler<ExceptionLogVO> {
     public AuditLogService getAuditLogService() {
         return this.auditLogService;
     }
-    
+
     @Override
 	public String getRestfulUrl() {
 		return this.restfulHost + AbstractHandler.RESTFUL_EX_URL;
