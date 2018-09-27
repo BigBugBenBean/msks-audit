@@ -1,29 +1,30 @@
 package com.pccw.sc2.audit.thread;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.Future;
-
-import com.pccw.sc2.audit.log.TransationLogVO;
-import com.pccw.sc2.audit.service.AuditLogService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import cn.hutool.core.collection.ConcurrentHashSet;
+import com.pccw.sc2.audit.log.TransationLogVO;
+import com.pccw.sc2.audit.service.AuditLogService;
+
 import cn.hutool.core.thread.ThreadUtil;
 
-public class TransactionLineHandler implements AbstractLineHandler<TransationLogVO> {
+public class TransactionHandler implements AbstractHandler<TransationLogVO> {
 
-    private Logger log = LoggerFactory.getLogger(TransactionLineHandler.class);
-    private Logger restLog = LoggerFactory.getLogger("rest_log");
+    private Logger log = LoggerFactory.getLogger(TransactionHandler.class);
+    private Logger resultLog = LoggerFactory.getLogger("result_log");
 
     @Value("${trans.capacity}")
     private int capacity;
 
-    private Set<String> set = new ConcurrentHashSet<>(capacity);
+    @Value("${restful.host}")
+	private String restfulHost; // http://172.16.254.76:8080
 
     @Autowired
     private AuditLogService auditLogService;
@@ -31,26 +32,16 @@ public class TransactionLineHandler implements AbstractLineHandler<TransationLog
     private String fileName;
 
     @Override
-    public void handle(String line) {
-        if (this.set.size() < capacity) {
-            this.set.add(line);
-        } else if (this.set.size() >= capacity) {
-            auditLogService.sendTranscation(change(set));
-            set.clear();
-        }
-    }
+    public void handle(List<String> list) {
 
-    @Override
-    public void after() {
-
-        if (this.set.size() >0) {
-            List<TransationLogVO> voList = change(this.set);
-            Future<Integer> future = auditLogService.sendTranscation(voList);
-            set.clear();
+    	if (list != null && list.size()>0) {
+            List<TransationLogVO> voList = transform(list);
+            Future<Integer> future = auditLogService.send(buildJsonObjectTrans(voList),this.getRestfulUrl());
             int i = 0;
             while (true) {
                 if (i >= 60) {
                     this.log.warn("send transaction exceed the limit 60 seconds.");
+                    this.resultLog.warn("overtime..{}",this.fileName);
                     break;
                 } else {
                     i++;
@@ -62,11 +53,12 @@ public class TransactionLineHandler implements AbstractLineHandler<TransationLog
                 if (future.isDone()) {
                     log.info("send transaction is done.");
                     try {
-                        Integer body = future.get();
-                        log.info("send transaction success."+ body.toString());
+                        Integer statusCode = future.get();
+                        log.info("send transaction success."+ statusCode.toString());
+                        this.resultLog.info("==>>success.{}",this.fileName);
 					} catch (Exception e) {
                         Throwable ee =  e.getCause() == null ? e : e.getCause();
-                        this.restLog.error("filename:{} ,error:{}",this.fileName,ee.getMessage());
+                        this.resultLog.error("filename:{} ,error:{}",this.fileName,ee.getMessage());
                         this.log.error("call restful ws error.",e);
                     }
                     break;
@@ -75,6 +67,10 @@ public class TransactionLineHandler implements AbstractLineHandler<TransationLog
             }
         }
     }
+    
+    public String getRestfulUrl() {
+		return this.restfulHost + AbstractHandler.RESTFUL_TX_URL;
+	}
 
     public String getFileName() {
         return fileName;
@@ -84,4 +80,13 @@ public class TransactionLineHandler implements AbstractLineHandler<TransationLog
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+    
+    private Map<String, Object> buildJsonObjectTrans(List<TransationLogVO> requestEntity) {
+		return new HashMap<String, Object>() {
+			private static final long serialVersionUID = 1L;
+			{
+				put("lkskTxLgList", requestEntity);
+			}
+		};
+	}
 }

@@ -1,15 +1,9 @@
 package sc2.msks.impl.msgexchange;
 
-import com.pccw.sc2.audit.log.ExceptionLogVO;
-import com.pccw.sc2.audit.log.TransationLogVO;
-import com.pccw.sc2.audit.thread.AbstractLineHandler;
-import com.pccw.sc2.audit.thread.ExceptionLineHandler;
-import com.pccw.sc2.audit.thread.FileListener;
-import com.pccw.sc2.audit.thread.TransactionLineHandler;
+import java.io.File;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.HiddenFileFilter;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,9 +13,12 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.io.File;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import com.pccw.sc2.audit.log.ExceptionLogVO;
+import com.pccw.sc2.audit.log.TransationLogVO;
+import com.pccw.sc2.audit.thread.AbstractHandler;
+import com.pccw.sc2.audit.thread.ExceptionHandler;
+import com.pccw.sc2.audit.thread.FileListener;
+import com.pccw.sc2.audit.thread.TransactionHandler;
 
 @Configuration
 @EnableAsync
@@ -87,13 +84,13 @@ public class BeanConfig {
 
     @Bean
 //    @Scope(value = BeanDefinition.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.NO)
-    public AbstractLineHandler<ExceptionLogVO> exceptionLineHandler() {
-        return new ExceptionLineHandler();
+    public AbstractHandler<ExceptionLogVO> exceptionLineHandler() {
+        return new ExceptionHandler();
     }
 
     @Bean
 //    @Scope(value = BeanDefinition.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.NO)
-    public AbstractLineHandler<TransationLogVO> transcationLineHandler() {
-        return new TransactionLineHandler();
+    public AbstractHandler<TransationLogVO> transcationLineHandler() {
+        return new TransactionHandler();
     }
 }

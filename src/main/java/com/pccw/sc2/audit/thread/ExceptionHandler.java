@@ -1,29 +1,30 @@
 package com.pccw.sc2.audit.thread;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.Future;
-
-import com.pccw.sc2.audit.log.ExceptionLogVO;
-import com.pccw.sc2.audit.service.AuditLogService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import cn.hutool.core.collection.ConcurrentHashSet;
+import com.pccw.sc2.audit.log.ExceptionLogVO;
+import com.pccw.sc2.audit.service.AuditLogService;
+
 import cn.hutool.core.thread.ThreadUtil;
 
-public class ExceptionLineHandler implements AbstractLineHandler<ExceptionLogVO> {
+public class ExceptionHandler implements AbstractHandler<ExceptionLogVO> {
 
-    private Logger log = LoggerFactory.getLogger(ExceptionLineHandler.class);
-    private Logger restLog = LoggerFactory.getLogger("rest_log");
+    private Logger log = LoggerFactory.getLogger(ExceptionHandler.class);
+    private Logger resultLog = LoggerFactory.getLogger("result_log");
 
     @Value("${excpt.capacity}")
     private int capacity;
-
-    private Set<String> set = new ConcurrentHashSet<>(capacity);
+    
+    @Value("${restful.host}")
+	private String restfulHost; // http://172.16.254.76:8080
 
     private String fileName;
 
@@ -31,25 +32,16 @@ public class ExceptionLineHandler implements AbstractLineHandler<ExceptionLogVO>
     private AuditLogService auditLogService;
 
     @Override
-    public void handle(String line) {
-        if (this.set.size() < capacity) {
-            this.set.add(line);
-        } else if (this.set.size() >= capacity) {
-            auditLogService.sendException(change(set));
-            set.clear();
-        }
-    }
+    public void handle(List<String> list) {
 
-    @Override
-    public void after() {
-        if (this.set.size()>0) {
-            List<ExceptionLogVO> change = change(this.set);
-            Future<Integer> future = auditLogService.sendException(change);
-            set.clear();
+        if (list != null && list.size()>0) {
+            List<ExceptionLogVO> voList = transform(list);
+            Future<Integer> future = auditLogService.send(buildJsonObjectExcpt(voList),this.getRestfulUrl());
             int i = 0;
             while (true) {
                if (i >= 60) {
                    this.log.warn("send exception exceed the limit 60 seconds.");
+                   this.resultLog.warn("overtime..{}",this.fileName);
                    break;
                } else {
                    i++;
@@ -61,14 +53,13 @@ public class ExceptionLineHandler implements AbstractLineHandler<ExceptionLogVO>
                 if (future.isDone()) {
                     log.info("send exception is done.");
                     try {
-						Integer body = future.get();
-						log.info("send exception success."+ body.toString());
+						Integer statusCode = future.get();
+						log.info("send exception success."+ statusCode.toString());
+						this.resultLog.info("==>>success.{}",this.fileName);
 					} catch (Exception e) {
                         Throwable ee =  e.getCause() == null ? e : e.getCause();
-                        this.restLog.error("filename:{} ,error:{}",this.fileName,ee.getMessage());
+                        this.resultLog.error("filename:{} ,error:{}",this.fileName,ee.getMessage());
                         this.log.error("call restful ws error.",e.getCause());
-                        // e.getCause().printStackTrace();
-						// e.printStackTrace();
                     }
                     break;
                 }
@@ -76,6 +67,11 @@ public class ExceptionLineHandler implements AbstractLineHandler<ExceptionLogVO>
             }
         }
     }
+    
+
+	public String getRestfulUrl() {
+		return this.restfulHost + AbstractHandler.RESTFUL_EX_URL;
+	}
 
     public String getFileName() {
         return fileName;
@@ -85,4 +81,14 @@ public class ExceptionLineHandler implements AbstractLineHandler<ExceptionLogVO>
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+    
+    private Map<String, Object> buildJsonObjectExcpt(List<ExceptionLogVO> requestEntity) {
+		return new HashMap<String, Object>() {
+			private static final long serialVersionUID = 1L;
+			{
+				put("lkskExLgList", requestEntity);
+			}
+		};
+    }
+
 }

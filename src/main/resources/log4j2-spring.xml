@@ -4,8 +4,8 @@
 
     <Properties>
         <Property name="APP_NAME">msks-audit</Property>
-        <!-- <Property name="ROOT_PATH">/home/bigbean/msks_logs</Property> -->
-        <Property name="ROOT_PATH">D:/kiosk_logs</Property>
+        <Property name="ROOT_PATH">/home/bigbean/msks_logs</Property>
+        <!-- <Property name="ROOT_PATH">D:/kiosk_logs</Property> -->
         <Property name="LOG_FILE_PATH">${ROOT_PATH}/${APP_NAME}</Property>
         <Property name="PATTERN_FORMAT">%d{yyyy-MM-dd HH:mm:ss.SSS} %c %msg%n</Property>
     </Properties>
@@ -17,7 +17,7 @@
                 <pattern>[%-5p] %d %t - %m%n</pattern>
             </PatternLayout>
         </Console>
-        <RollingFile name="sendRollingFile" fileName="${LOG_FILE_PATH}/rest_core_fail.log"
+        <RollingFile name="resultRollingFile" fileName="${LOG_FILE_PATH}/result.log"
               filePattern="${LOG_FILE_PATH}/$${date:yyyyMM}/fail-%d{yyyyMMdd}-%i.log">
             <PatternLayout>
                 <pattern>${PATTERN_FORMAT}</pattern>
@@ -111,8 +111,8 @@
         <Logger name="trans_log" level="info" additivity="false">
             <AppenderRef ref="transRollingFile" />
         </Logger>
-        <Logger name="rest_log" level="error" additivity="false">
-            <AppenderRef ref="sendRollingFile" />
+        <Logger name="result_log" level="info" additivity="false">
+            <AppenderRef ref="resultRollingFile" />
         </Logger>
         <!--<Logger name="com.pccw.sc2.audit.thread" level="info" additivity="false">-->
             <!--<AppenderRef ref="failWSRollingFile" />-->

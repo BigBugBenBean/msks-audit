@@ -87,14 +87,11 @@ public class MessagingClient {
     }
 
     private void processFunction(String function,JSONObject resqPayload) {
-
         if("excptlg".equals(function)) {
 //            String icno = resqPayload.getString("ic_no");
 //            String locationId = resqPayload.getString("locationID");
 //            String kioskId = resqPayload.getString("kioskID");
-//
 //            String message = resqPayload.getString("message");
-
             this.auditLogService.processExceptionLog(resqPayload);
         }else if("translg".equals(function)) {
             this.auditLogService.processOperationLog(resqPayload);

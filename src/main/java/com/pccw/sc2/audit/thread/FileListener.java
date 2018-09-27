@@ -1,7 +1,7 @@
 package com.pccw.sc2.audit.thread;
 
+import java.util.List;
 import java.io.File;
-import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
@@ -21,11 +21,11 @@ public class FileListener extends FileAlterationListenerAdaptor {
     
     @Autowired
     @Qualifier("exceptionLineHandler")
-    private AbstractLineHandler<ExceptionLogVO> exceptionLineHandler;
+    private AbstractHandler<ExceptionLogVO> exceptionLineHandler;
 
     @Autowired
     @Qualifier("transcationLineHandler")
-    private AbstractLineHandler<TransationLogVO> transactionLineHandler;
+    private AbstractHandler<TransationLogVO> transactionLineHandler;
 
     private Pattern excptPattern = Pattern.compile("excpt-\\d{8}-\\d+.log");
     private Pattern transPattern = Pattern.compile("trans-\\d{8}-\\d+.log");
@@ -37,35 +37,26 @@ public class FileListener extends FileAlterationListenerAdaptor {
     private boolean isTranscation(String fileName) {
         return transPattern.matcher(fileName).matches();
     }
-
-//    private boolean isNewDir(File file) {
-//        return file.isDirectory();
-//    }
     
     private void processExcptAndTransLogFile(File file,String fileName) {
         log.info("start process {}...",fileName);
         if (isTranscation(fileName)) {
             this.transactionLineHandler.setFileName(fileName);
-            FileUtil.readUtf8Lines(file, this.transactionLineHandler);
-            this.transactionLineHandler.after();
+            List<String> list = FileUtil.readUtf8Lines(file);
+            this.transactionLineHandler.handle(list);
         }else if (isException(fileName)) {
             this.exceptionLineHandler.setFileName(fileName);
-            FileUtil.readUtf8Lines(file, this.exceptionLineHandler);
-            this.exceptionLineHandler.after();
+            List<String> list = FileUtil.readUtf8Lines(file);
+            this.exceptionLineHandler.handle(list);
         }else {
-        	log.info("the file is neither Excpt nor Trans,ignore.");
+        	log.info("the file is neither excpt nor trans,ignore.");
         }
     }
     /**
      * 文件创建执行
      */
     public void onFileCreate(File file) {
-//    	if(isNewDir(file)) {
-//    		log.info(file.getAbsolutePath()+" is dir,ignore.");
-//    		return;
-//    	}else {
     		processExcptAndTransLogFile(file,file.getName());
-//    	}
 //        log.info("[新建]:" + file.getAbsolutePath());
     }
 
@@ -73,35 +64,35 @@ public class FileListener extends FileAlterationListenerAdaptor {
      * 文件创建修改
      */
     public void onFileChange(File file) {
-        log.info("[修改文件]:" + file.getAbsolutePath());
+//        log.info("[修改文件]:" + file.getAbsolutePath());
     }
 
     /**
      * 文件删除
      */
     public void onFileDelete(File file) {
-        log.info("[删除文件]:" + file.getAbsolutePath());
+//        log.info("[删除文件]:" + file.getAbsolutePath());
     }
 
     /**
      * 目录创建
      */
     public void onDirectoryCreate(File directory) {
-        log.info("[新建目录]:" + directory.getAbsolutePath());
+//        log.info("[新建目录]:" + directory.getAbsolutePath());
     }
 
     /**
      * 目录修改
      */
     public void onDirectoryChange(File directory) {
-        log.info("[修改目录]:" + directory.getAbsolutePath());
+//        log.info("[修改目录]:" + directory.getAbsolutePath());
     }
 
     /**
      * 目录删除
      */
     public void onDirectoryDelete(File directory) {
-        log.info("[删除目录]:" + directory.getAbsolutePath());
+//        log.info("[删除目录]:" + directory.getAbsolutePath());
     }
 
     public void onStart(FileAlterationObserver observer) {
@@ -112,7 +103,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
         super.onStop(observer);
     }
     
-    private File getSendFile(Path parentPath,String fileName) {
-        return new File(parentPath.toString()+File.separator+fileName);
-    }
+//    private File getSendFile(Path parentPath,String fileName) {
+//        return new File(parentPath.toString()+File.separator+fileName);
+//    }
 }

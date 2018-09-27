@@ -1,81 +1,73 @@
 package com.pccw.sc2.audit.service.impl;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
-
-import com.pccw.sc2.audit.log.ExceptionLogVO;
-import com.pccw.sc2.audit.log.TransationLogVO;
-import com.pccw.sc2.audit.service.AuditLogService;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.pccw.sc2.audit.service.AuditLogService;
+
 @Service
 public class AuditLogServiceImpl implements AuditLogService {
 
-	@Value("${restful.host}")
-	private String restfulHost;// http://172.16.254.76:8080
-
 //	private Logger log = LoggerFactory.getLogger(AuditLogServiceImpl.class);
 	private Logger log = LogManager.getLogger(AuditLogServiceImpl.class);
-	
-//	private Logger trackLog = LoggerFactory.getLogger("track_log");
-//	private Logger excptLog = LoggerFactory.getLogger("excpt_log");
-//	private Logger transLog = LoggerFactory.getLogger("trans_log");
 
 	private Logger trackLog = LogManager.getLogger("track_log");
 	private Logger excptLog = LogManager.getLogger("excpt_log");
 	private Logger transLog = LogManager.getLogger("trans_log");
 	
-	private final String RESTFUL_EX_URL = "/smartics/srk/insertWkskExLog";
-	private final String RESTFUL_TX_URL = "/smartics/srk/insertWkskTxLog";
-
 	RestTemplate restTemplate = new RestTemplate();
 
 	@Override
 	@Async
-	public Future<Integer> sendTranscation(List<TransationLogVO> requestEntity) {
-		this.log.info("start send transaction .......");
-		ResponseEntity<String> responseEntity = restTemplate.postForEntity(this.buildTranscationUrl(),
-				this.buildJsonObjectTrans(requestEntity), String.class);
+	public <T> Future<Integer> send(Map<String, Object> requestEntity,String restUrl) {
+		this.log.info("start invoking restful webservice .......");
+		ResponseEntity<String> responseEntity = restTemplate.postForEntity(restUrl,requestEntity, String.class);
 //		int statusCodeValue = responseEntity.getStatusCodeValue();
-		return new AsyncResult<Integer>(requestEntity.size());
+		return new AsyncResult<Integer>(responseEntity.getStatusCodeValue());
+//		return new AsyncResult<Integer>(Integer.parseInt("444"));
 	}
 
-	@Override
-	@Async
-	public Future<Integer> sendException(List<ExceptionLogVO> requestEntity) {
-		this.log.info("start send exception .......");
-		String url = this.buildExceptionUrl();
-		Map<String, Object> entity = this.buildJsonObjectExcpt(requestEntity);
-		ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, entity, String.class);
-//		int statusCodeValue = responseEntity.getStatusCodeValue();
-//		if (statusCodeValue == 200) {
-//			this.log.info("sended size= {} ", requestEntity.size());
-//		}
-		return new AsyncResult<Integer>(requestEntity.size());
-		// ThreadUtil.sleep(5000);
+//	@Override
+//	@Async
+//	public Future<Integer> sendTranscation(List<TransationLogVO> requestEntity,String restUrl) {
+//		this.log.info("start send transaction .......");
+//		ResponseEntity<String> responseEntity = restTemplate.postForEntity(restUrl,
+//				this.buildJsonObjectTrans(requestEntity), String.class);
+////		int statusCodeValue = responseEntity.getStatusCodeValue();
+//		return new AsyncResult<Integer>(requestEntity.size());
+//	}
 
-		// Future<String> future;
-		// try {
-		// Thread.sleep(1000 * 1);
-		// future = new AsyncResult<String>("success:" + i);
-		// } catch (InterruptedException e) {
-		// future = new AsyncResult<String>("error");
-		// }
-		// return future;
-	}
+//	@Override
+//	@Async
+//	public Future<Integer> sendException(List<ExceptionLogVO> requestEntity,String restUrl) {
+//		this.log.info("start send exception .......");
+//		Map<String, Object> entity = this.buildJsonObjectExcpt(requestEntity);
+//		ResponseEntity<String> responseEntity = restTemplate.postForEntity(restUrl, entity, String.class);
+////		int statusCodeValue = responseEntity.getStatusCodeValue();
+////		if (statusCodeValue == 200) {
+////			this.log.info("sended size= {} ", requestEntity.size());
+////		}
+//		return new AsyncResult<Integer>(requestEntity.size());
+//		// ThreadUtil.sleep(5000);
+//
+//		// Future<String> future;
+//		// try {
+//		// Thread.sleep(1000 * 1);
+//		// future = new AsyncResult<String>("success:" + i);
+//		// } catch (InterruptedException e) {
+//		// future = new AsyncResult<String>("error");
+//		// }
+//		// return future;
+//	}
 
 	@Override
 	public void processExceptionLog(JSONObject payload) {
@@ -131,37 +123,6 @@ public class AuditLogServiceImpl implements AuditLogService {
 		resq = fptmplinBase64(reqFpimginBase64(resq));
 		trackLog.info(String.format("=>reqt:%s, payload:%s", head, resq));
 		trackLog.info(String.format("<=resp:%s", resp));
-	}
-
-	private String buildTranscationUrl() {
-		return this.restfulHost + RESTFUL_TX_URL;
-	}
-
-	private String buildExceptionUrl() {
-		return this.restfulHost + RESTFUL_EX_URL;
-	}
-
-	private Map<String, Object> buildJsonObjectExcpt(List<ExceptionLogVO> requestEntity) {
-
-		// List<ExceptionLogVO> voList = requestEntity.stream().map(x ->
-		// getLogVO(x,ExceptionLogVO.class)).collect(Collectors.toList());
-		return new HashMap<String, Object>() {
-			private static final long serialVersionUID = 1L;
-			{
-				put("lkskExLgList", requestEntity);
-			}
-		};
-	}
-
-	private Map<String, Object> buildJsonObjectTrans(List<TransationLogVO> requestEntity) {
-		// List<TransationLogVO> voList = requestEntity.stream().map(x ->
-		// getLogVO(x,TransationLogVO.class)).collect(Collectors.toList());
-		return new HashMap<String, Object>() {
-			private static final long serialVersionUID = 1L;
-			{
-				put("lkskTxLgList", requestEntity);
-			}
-		};
 	}
 
 	private JSONObject respPhotoBmp(JSONObject payload) {
