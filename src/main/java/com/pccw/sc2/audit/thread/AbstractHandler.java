@@ -20,7 +20,7 @@ public interface AbstractHandler<T> {
     public static final String RESTFUL_EX_URL = "/smartics/srk/insertWkskExLog";
     public static final String RESTFUL_TX_URL = "/smartics/srk/insertWkskTxLog";
 
-    public Logger log = LoggerFactory.getLogger(ExceptionHandler.class);
+    public Logger log = LoggerFactory.getLogger(AbstractHandler.class);
     public Logger resultLog = LoggerFactory.getLogger("result_log");
 
     default T getLogVO(String log, TypeReference<T> clazz) {

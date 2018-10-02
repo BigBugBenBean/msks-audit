@@ -109,10 +109,12 @@ public class AuditLogServiceImpl implements AuditLogService {
 	@Override
 	public void processTrackLog(JSONObject payload) {
 		boolean hasMessage = payload.has("message");
+		boolean hasTimes = payload.has("times");
+		String times = hasTimes ? payload.getString("times") :"";
 		if (hasMessage) {
 			String message = payload.getString("message");
 			if (message != null && message.length() > 0) {
-				trackLog.info(String.format("msg-->%s", message));
+				trackLog.info(String.format("total:=>%sms ,msg-->%s",times, message));
 			}
 			return;
 		}
@@ -122,7 +124,7 @@ public class AuditLogServiceImpl implements AuditLogService {
 		resp = respFingerprint1(respAnsifptmp12inBase64(respPhoto(respPhotojp2inBase64(respMorphofptmp12inBase64(respPhotojpginBase64(respFingerprint0(fptmplinBase64(respPhotoBmp(fpdata(resp))))))))));
 		resq = fptmplinBase64(reqFpimginBase64(resq));
 		trackLog.info(String.format("=>reqt:%s, payload:%s", head, resq));
-		trackLog.info(String.format("<=resp:%s", resp));
+		trackLog.info(String.format("total:=>%sms ,resp<=:%s", times , resp));
 	}
 
 	private JSONObject respPhotoBmp(JSONObject payload) {
