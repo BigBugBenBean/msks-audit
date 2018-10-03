@@ -110,7 +110,7 @@ public class AuditLogServiceImpl implements AuditLogService {
 	public void processTrackLog(JSONObject payload) {
 		boolean hasMessage = payload.has("message");
 		boolean hasTimes = payload.has("times");
-		String times = hasTimes ? payload.getString("times") :"";
+		String times = hasTimes ? payload.getString("times") :"N/A";
 		if (hasMessage) {
 			String message = payload.getString("message");
 			if (message != null && message.length() > 0) {
